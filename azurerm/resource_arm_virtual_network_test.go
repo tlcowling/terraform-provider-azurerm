@@ -78,6 +78,33 @@ func testSweepVirtualNetworks(region string) error {
 	return nil
 }
 
+func TestValidateEmptyString(t *testing.T) {
+	cases := []struct {
+		Value           string
+		ErrCount        int
+		TestDescription string
+	}{
+		{
+			TestDescription: "DNS Server entry is not empty, it should be valid",
+			Value:           "8.8.8.8",
+			ErrCount:        0,
+		},
+		{
+			TestDescription: "DNS Server entry is empty, it should not be valid",
+			Value:           "",
+			ErrCount:        1,
+		},
+	}
+
+	for _, tc := range cases {
+		_, errors := validateDNSServerNotEmpty(tc.Value, "azurerm_virtual_network")
+
+		if len(errors) != tc.ErrCount {
+			t.Fatalf("Error with Azure Virtual Network: %v where dns_server '%v'\n", tc.TestDescription, tc.Value)
+		}
+	}
+}
+
 func TestAccAzureRMVirtualNetwork_basic(t *testing.T) {
 	resourceName := "azurerm_virtual_network.test"
 	ri := acctest.RandInt()

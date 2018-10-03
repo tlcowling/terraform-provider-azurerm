@@ -48,7 +48,8 @@ func resourceArmVirtualNetwork() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
+					Type:         schema.TypeString,
+					ValidateFunc: validateDNSServerNotEmpty,
 				},
 			},
 
@@ -103,7 +104,7 @@ func resourceArmVirtualNetworkCreate(d *schema.ResourceData, meta interface{}) e
 		Name:                           &name,
 		Location:                       &location,
 		VirtualNetworkPropertiesFormat: vnetProperties,
-		Tags: expandTags(tags),
+		Tags:                           expandTags(tags),
 	}
 
 	networkSecurityGroupNames := make([]string, 0)
@@ -421,4 +422,12 @@ func expandAzureRmVirtualNetworkVirtualNetworkSecurityGroupNames(d *schema.Resou
 	}
 
 	return nsgNames, nil
+}
+
+func validateDNSServerNotEmpty(v interface{}, k string) (ws []string, errors []error) {
+	if v.(string) == "" {
+		errors = append(errors, fmt.Errorf("DNS Server Entry is invalid, cannot be empty string"))
+	}
+
+	return
 }
